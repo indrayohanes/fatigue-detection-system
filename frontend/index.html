@@ -1,121 +1,135 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Deteksi Kelelahan Kerja - CNN</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
                 <div class="brand-icon">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                        <rect x="4" y="4" width="24" height="24" rx="4" fill="currentColor" opacity="0.1"/>
-                        <path d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z" fill="currentColor"/>
-                        <path d="M20 14C21.1046 14 22 13.1046 22 12C22 10.8954 21.1046 10 20 10C18.8954 10 18 10.8954 18 12C18 13.1046 18.8954 14 20 14Z" fill="currentColor"/>
-                        <path d="M11 19C11 18.4477 11.4477 18 12 18H20C20.5523 18 21 18.4477 21 19C21 21.2091 19.2091 23 17 23H15C12.7909 23 11 21.2091 11 19Z" fill="currentColor"/>
+                    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                        <path d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z" fill="currentColor" />
+                        <path d="M20 14C21.1046 14 22 13.1046 22 12C22 10.8954 21.1046 10 20 10C18.8954 10 18 10.8954 18 12C18 13.1046 18.8954 14 20 14Z" fill="currentColor" />
+                        <path d="M11 19C11 18.4477 11.4477 18 12 18H20C20.5523 18 21 18.4477 21 19C21 21.2091 19.2091 23 17 23H15C12.7909 23 11 21.2091 11 19Z" fill="currentColor" />
                     </svg>
                 </div>
-                <div class="brand-text">
-                    <div class="brand-title">Fatigue Detection System</div>
-                    <div class="brand-subtitle">CNN-Based Web Dashboard</div>
-                </div>
+                <div class="brand-title">Fatigue Detection</div>
             </div>
             <div class="nav-links">
-                <a href="#home" class="nav-link active">Beranda</a>
-                <a href="#detection" class="nav-link">Deteksi</a>
+                <a href="#detection" class="nav-link active">Deteksi</a>
+                <a href="#history" class="nav-link" id="navHistory" style="display:none;">Riwayat</a>
                 <a href="#about" class="nav-link">Tentang</a>
+            </div>
+            <div class="nav-auth">
+                <button class="btn btn-auth" id="authBtn" onclick="showAuthModal()">Login</button>
+                <div class="user-menu" id="userMenu" style="display:none;">
+                    <span class="user-name" id="userName"></span>
+                    <button class="btn btn-logout" onclick="handleLogout()">Logout</button>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero">
+    <!-- Mini Stats Bar -->
+    <div class="stats-bar">
         <div class="container">
-            <div class="hero-content">
-                <div class="hero-badge">
-                    <span class="badge-dot"></span>
-                    <span>Penelitian Skripsi 2026</span>
-                </div>
-                <h1 class="hero-title">
-                    Deteksi Kelelahan Kerja<br>
-                    <span class="gradient-text">Berbasis Ekspresi Wajah</span>
-                </h1>
-                <p class="hero-description">
-                    Sistem deteksi kelelahan kerja menggunakan Convolutional Neural Network (CNN) 
-                    yang mampu menganalisis ekspresi wajah secara non-invasif dan real-time 
-                    untuk meningkatkan keselamatan dan produktivitas kerja.
-                </p>
-                <div class="hero-stats">
-                    <div class="stat-card">
-                        <div class="stat-value" id="accuracy-stat">0%</div>
-                        <div class="stat-label">Model Accuracy</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="detection-stat">0</div>
-                        <div class="stat-label">Total Deteksi</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">Non-Invasif</div>
-                        <div class="stat-label">Metode Deteksi</div>
-                    </div>
-                </div>
-                <div class="hero-actions">
-                    <button class="btn btn-primary" onclick="scrollToDetection()">
-                        <span>Mulai Deteksi</span>
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                    <button class="btn btn-secondary" onclick="scrollToAbout()">
-                        Pelajari Lebih Lanjut
-                    </button>
-                </div>
+            <div class="stats-row">
+                <div class="stat-item"><span class="stat-value" id="accuracy-stat">0%</span> Akurasi Model</div>
+                <div class="stat-item"><span class="stat-value" id="detection-stat">0</span> Total Deteksi</div>
+                <div class="stat-item"><span class="stat-value">CNN</span> Deep Learning</div>
             </div>
-            <div class="hero-visual">
-                <div class="visual-card">
-                    <div class="visual-header">
-                        <div class="visual-title">Proses Deteksi</div>
-                        <div class="visual-status">
-                            <span class="status-dot"></span>
-                            <span>Siap</span>
+        </div>
+    </div>
+
+    <!-- Hero Introduction -->
+    <section class="hero-intro">
+        <div class="hero-glow hero-glow-1"></div>
+        <div class="hero-glow hero-glow-2"></div>
+        <div class="container">
+            <div class="hero-intro-grid">
+                <div class="hero-intro-content">
+                    <div class="hero-badge">
+                        <span class="badge-pulse"></span>
+                        <span>Penelitian Skripsi 2026</span>
+                    </div>
+                    <h1 class="hero-title">
+                        Deteksi Kelelahan Kerja<br>
+                        <span class="gradient-text">Berbasis Ekspresi Wajah</span>
+                    </h1>
+                    <p class="hero-desc">
+                        Cukup upload foto wajah, sistem akan otomatis menganalisis apakah Anda
+                        sedang dalam kondisi <strong>lelah atau tidak</strong> menggunakan teknologi
+                        kecerdasan buatan (<strong>CNN</strong>). Tanpa sensor, tanpa alat tambahan — 
+                        cukup satu foto.
+                    </p>
+                    <div class="hero-cta">
+                        <a href="#detection" class="btn btn-primary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span>Mulai Deteksi</span>
+                        </a>
+                        <a href="#about" class="btn btn-secondary">Pelajari Sistem</a>
+                    </div>
+                </div>
+                <div class="hero-intro-visual">
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="process-icon upload-icon-step">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                            <div class="process-label">Upload<br><span>Foto Wajah</span></div>
+                        </div>
+                        <div class="process-arrow">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <div class="process-step">
+                            <div class="process-icon detect-icon-step">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="17.5" r="3.5" stroke="currentColor" stroke-width="2"/></svg>
+                            </div>
+                            <div class="process-label">Deteksi<br><span>Wajah</span></div>
+                        </div>
+                        <div class="process-arrow">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <div class="process-step">
+                            <div class="process-icon cnn-icon-step">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                            <div class="process-label">Analisis<br><span>CNN</span></div>
+                        </div>
+                        <div class="process-arrow">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <div class="process-step">
+                            <div class="process-icon result-icon-step">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                            <div class="process-label">Hasil<br><span>& Saran</span></div>
                         </div>
                     </div>
-                    <div class="visual-steps">
-                        <div class="step">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
-                                <div class="step-title">Upload Gambar</div>
-                                <div class="step-desc">Unggah foto wajah</div>
-                            </div>
+                    <div class="hero-features-row">
+                        <div class="hero-feature">
+                            <div class="hero-feature-icon">📸</div>
+                            <span>Upload Foto</span>
                         </div>
-                        <div class="step-connector"></div>
-                        <div class="step">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
-                                <div class="step-title">Face Detection</div>
-                                <div class="step-desc">Deteksi area wajah</div>
-                            </div>
+                        <div class="hero-feature">
+                            <div class="hero-feature-icon">🧠</div>
+                            <span>AI Cerdas</span>
                         </div>
-                        <div class="step-connector"></div>
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
-                                <div class="step-title">CNN Analysis</div>
-                                <div class="step-desc">Analisis CNN</div>
-                            </div>
+                        <div class="hero-feature">
+                            <div class="hero-feature-icon">🔍</div>
+                            <span>Penjelasan AI</span>
                         </div>
-                        <div class="step-connector"></div>
-                        <div class="step">
-                            <div class="step-number">4</div>
-                            <div class="step-content">
-                                <div class="step-title">Hasil</div>
-                                <div class="step-desc">Tampilkan hasil</div>
-                            </div>
+                        <div class="hero-feature">
+                            <div class="hero-feature-icon">🛡️</div>
+                            <span>Tanpa Sensor</span>
                         </div>
                     </div>
                 </div>
@@ -123,35 +137,28 @@
         </div>
     </section>
 
-    <!-- Detection Section -->
+    <!-- Detection Section (Main) -->
     <section id="detection" class="detection-section">
         <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Deteksi Kelelahan</h2>
-                <p class="section-description">
-                    Unggah gambar wajah untuk mendeteksi tingkat kelelahan menggunakan model CNN
-                </p>
-            </div>
-
             <div class="detection-grid">
-                <!-- Upload Area -->
+                <!-- Left: Upload -->
                 <div class="upload-card">
+                    <div class="card-title">Upload Gambar Wajah</div>
                     <div class="upload-area" id="uploadArea">
                         <input type="file" id="imageInput" accept="image/*" hidden>
                         <div class="upload-content" id="uploadContent">
-                            <svg class="upload-icon" width="64" height="64" viewBox="0 0 64 64" fill="none">
-                                <rect x="8" y="8" width="48" height="48" rx="8" stroke="currentColor" stroke-width="2" opacity="0.2"/>
-                                <path d="M32 20V44M20 32H44" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                            <svg class="upload-icon" width="48" height="48" viewBox="0 0 64 64" fill="none">
+                                <rect x="8" y="8" width="48" height="48" rx="8" stroke="currentColor" stroke-width="2" opacity="0.2" />
+                                <path d="M32 20V44M20 32H44" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
                             </svg>
-                            <h3 class="upload-title">Upload Gambar Wajah</h3>
-                            <p class="upload-text">Klik untuk memilih file atau drag & drop</p>
-                            <p class="upload-hint">Format: JPG, PNG • Max: 16MB</p>
+                            <h3 class="upload-title">Klik atau Drag & Drop</h3>
+                            <p class="upload-hint">JPG, PNG • Max 10MB</p>
                         </div>
                         <div class="preview-container" id="previewContainer" style="display: none;">
                             <img id="imagePreview" alt="Preview">
                             <button class="remove-image" id="removeImage">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <path d="M5 5L15 15M5 15L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                    <path d="M5 5L15 15M5 15L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                                 </svg>
                             </button>
                         </div>
@@ -162,43 +169,107 @@
                     </button>
                 </div>
 
-                <!-- Results Area -->
+                <!-- Right: Results -->
                 <div class="results-card" id="resultsCard">
+                    <div class="card-title">Hasil Deteksi</div>
                     <div class="results-empty" id="resultsEmpty">
-                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                            <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="2" opacity="0.1"/>
-                            <path d="M40 28V40M40 48V52" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                        <svg width="56" height="56" viewBox="0 0 80 80" fill="none">
+                            <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="2" opacity="0.1" />
+                            <path d="M40 28V40M40 48V52" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
                         </svg>
                         <h3>Menunggu Analisis</h3>
-                        <p>Hasil deteksi akan ditampilkan di sini</p>
+                        <p>Upload gambar wajah lalu klik analisis</p>
                     </div>
 
                     <div class="results-content" id="resultsContent" style="display: none;">
-                        <div class="result-header">
-                            <div class="result-status" id="resultStatus">
-                                <div class="status-icon" id="statusIcon"></div>
-                                <div class="status-text">
-                                    <div class="status-label" id="statusLabel">Status</div>
-                                    <div class="status-value" id="statusValue">-</div>
+                        <!-- Status Banner -->
+                        <div class="result-status-banner" id="resultStatusBanner">
+                            <div class="status-banner-icon" id="statusIcon"></div>
+                            <div class="status-banner-text" id="statusValue">-</div>
+                        </div>
+
+                        <!-- Confidence Bar -->
+                        <div class="confidence-section">
+                            <div class="confidence-header">
+                                <span class="confidence-label">Confidence Level</span>
+                                <span class="confidence-value" id="confidenceValue">0%</span>
+                            </div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Face + Heatmap side by side -->
+                        <div class="face-comparison-grid">
+                            <div class="face-comparison-item">
+                                <div class="comparison-label">
+                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                        <circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.5" />
+                                        <path d="M2 14C2 11.2386 4.68629 9 8 9C11.3137 9 14 11.2386 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                    </svg>
+                                    <span>Wajah</span>
+                                </div>
+                                <div class="comparison-image-wrapper">
+                                    <img id="faceImage" alt="Detected Face">
                                 </div>
                             </div>
-                            <div class="result-confidence">
-                                <div class="confidence-label">Confidence</div>
-                                <div class="confidence-value" id="confidenceValue">0%</div>
+                            <div class="face-comparison-item" id="gradcamCard" style="display: none;">
+                                <div class="comparison-label gradcam-label">
+                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" opacity="0.5" />
+                                        <circle cx="8" cy="8" r="2.5" fill="currentColor" />
+                                    </svg>
+                                    <span>Grad-CAM</span>
+                                </div>
+                                <div class="comparison-image-wrapper gradcam-wrapper">
+                                    <img id="gradcamImage" alt="Grad-CAM Heatmap">
+                                    <div class="heatmap-legend">
+                                        <div class="legend-bar"></div>
+                                        <div class="legend-labels"><span>Rendah</span><span>Tinggi</span></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="result-visual">
-                            <div class="detected-face" id="detectedFace">
-                                <img id="faceImage" alt="Detected Face">
-                                <div class="face-label">Wajah Terdeteksi</div>
-                            </div>
+                        <!-- Heatmap Note (hidden by default) -->
+                        <div class="heatmap-note" id="heatmapNote" style="display: none;">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" opacity="0.5" />
+                                <path d="M8 5V8.5M8 11V11.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                            <span>Area <strong style="color:#ef4444">merah/kuning</strong> = area wajah paling berpengaruh pada prediksi model.</span>
                         </div>
 
+                        <!-- Region Analysis -->
+                        <div class="region-analysis-card" id="regionAnalysisCard" style="display: none;">
+                            <div class="region-analysis-header">
+                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                    <rect x="2" y="10" width="4" height="8" rx="1" fill="currentColor" opacity="0.3" />
+                                    <rect x="8" y="6" width="4" height="12" rx="1" fill="currentColor" opacity="0.6" />
+                                    <rect x="14" y="2" width="4" height="16" rx="1" fill="currentColor" />
+                                </svg>
+                                <span>Kontribusi Region Wajah</span>
+                            </div>
+                            <div class="region-bars" id="regionBars"></div>
+                        </div>
+
+                        <!-- AI Explanation -->
+                        <div class="ai-explanation-card" id="aiExplanationCard" style="display: none;">
+                            <div class="ai-explanation-header">
+                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                    <path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8z" stroke="currentColor" stroke-width="1.5" fill="none" />
+                                    <path d="M7 10L9 12L13 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span>Penjelasan AI</span>
+                            </div>
+                            <p class="ai-explanation-text" id="aiExplanationText"></p>
+                        </div>
+
+                        <!-- Recommendation -->
                         <div class="result-recommendation" id="resultRecommendation">
                             <div class="recommendation-header">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <path d="M10 2L12.09 6.26L17 7.27L13.5 10.97L14.18 16L10 13.77L5.82 16L6.5 10.97L3 7.27L7.91 6.26L10 2Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                    <path d="M10 2L12.09 6.26L17 7.27L13.5 10.97L14.18 16L10 13.77L5.82 16L6.5 10.97L3 7.27L7.91 6.26L10 2Z" stroke="currentColor" stroke-width="1.5" fill="none" />
                                 </svg>
                                 <span>Rekomendasi</span>
                             </div>
@@ -206,9 +277,10 @@
                             <ul class="recommendation-actions" id="recommendationActions"></ul>
                         </div>
 
+                        <!-- Meta -->
                         <div class="result-meta">
                             <div class="meta-item">
-                                <div class="meta-label">Waktu Deteksi</div>
+                                <div class="meta-label">Waktu</div>
                                 <div class="meta-value" id="detectionTime">-</div>
                             </div>
                             <div class="meta-item">
@@ -222,154 +294,121 @@
         </div>
     </section>
 
-    <!-- About Section -->
+    <!-- History Section -->
+    <section id="history" class="history-section" style="display:none;">
+        <div class="container">
+            <div class="section-header-compact">
+                <h2 class="section-title">Riwayat Deteksi</h2>
+                <div class="history-count" id="historyCount">0 hasil deteksi</div>
+            </div>
+            <div class="history-list" id="historyList">
+                <div class="history-empty" id="historyEmpty">
+                    <svg width="48" height="48" viewBox="0 0 64 64" fill="none">
+                        <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="2" opacity="0.1"/>
+                        <path d="M22 32H42M32 22V42" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.2"/>
+                    </svg>
+                    <h3>Belum ada riwayat</h3>
+                    <p>Lakukan deteksi untuk melihat riwayat di sini</p>
+                </div>
+            </div>
+            <div class="history-pagination" id="historyPagination" style="display:none;">
+                <button class="btn btn-secondary btn-sm" id="prevPageBtn" onclick="loadHistory(currentHistoryPage - 1)" disabled>← Sebelumnya</button>
+                <span class="page-info" id="pageInfo">Halaman 1</span>
+                <button class="btn btn-secondary btn-sm" id="nextPageBtn" onclick="loadHistory(currentHistoryPage + 1)" disabled>Selanjutnya →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section (compact) -->
     <section id="about" class="about-section">
         <div class="container">
+            <div class="section-header-compact">
+                <h2 class="section-title">Tentang Sistem</h2>
+            </div>
             <div class="about-grid">
-                <div class="about-content">
-                    <div class="section-label">Tentang Sistem</div>
-                    <h2 class="section-title">Teknologi CNN untuk<br>Deteksi Kelelahan</h2>
-                    <p class="about-text">
-                        Sistem ini menggunakan Convolutional Neural Network (CNN) untuk mendeteksi 
-                        kelelahan kerja berdasarkan analisis ekspresi wajah alami. Model CNN dirancang 
-                        khusus untuk mengenali pola visual halus (subtle visual cues) yang mengindikasikan 
-                        kondisi kelelahan.
-                    </p>
-                    
-                    <div class="features-list">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <div class="feature-content">
-                                <h4>Non-Invasif</h4>
-                                <p>Tidak memerlukan sensor fisik yang menempel pada tubuh</p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <path d="M13 10V3L4 14H11L11 21L20 10L13 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <div class="feature-content">
-                                <h4>Real-Time Analysis</h4>
-                                <p>Deteksi cepat dengan hasil dalam hitungan detik</p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <path d="M9 19V6L20 12L9 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <div class="feature-content">
-                                <h4>Akurasi Tinggi</h4>
-                                <p>Model CNN terlatih dengan dataset spesifik kelelahan</p>
-                            </div>
-                        </div>
+                <div class="about-card">
+                    <h3>Deskripsi</h3>
+                    <p>Sistem deteksi kelelahan kerja menggunakan Convolutional Neural Network (CNN) yang menganalisis ekspresi wajah secara non-invasif untuk meningkatkan keselamatan dan produktivitas kerja.</p>
+                </div>
+                <div class="about-card">
+                    <h3>Teknologi</h3>
+                    <div class="tech-list">
+                        <div class="tech-row"><span>Backend</span><span>Flask + Python</span></div>
+                        <div class="tech-row"><span>Deep Learning</span><span>TensorFlow/Keras</span></div>
+                        <div class="tech-row"><span>Face Detection</span><span>OpenCV</span></div>
+                        <div class="tech-row"><span>Frontend</span><span>HTML/CSS/JS</span></div>
                     </div>
                 </div>
-
-                <div class="about-visual">
-                    <div class="tech-card">
-                        <div class="tech-header">
-                            <h3>Arsitektur Sistem</h3>
-                        </div>
-                        <div class="tech-stack">
-                            <div class="tech-item">
-                                <div class="tech-name">Backend</div>
-                                <div class="tech-value">Flask + Python</div>
-                            </div>
-                            <div class="tech-item">
-                                <div class="tech-name">Deep Learning</div>
-                                <div class="tech-value">TensorFlow/Keras</div>
-                            </div>
-                            <div class="tech-item">
-                                <div class="tech-name">Face Detection</div>
-                                <div class="tech-value">OpenCV</div>
-                            </div>
-                            <div class="tech-item">
-                                <div class="tech-name">Frontend</div>
-                                <div class="tech-value">HTML/CSS/JavaScript</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="metrics-card">
-                        <h3>Target Performa</h3>
-                        <div class="metric-bars">
-                            <div class="metric-bar">
-                                <div class="metric-info">
-                                    <span>Accuracy</span>
-                                    <span>≥85%</span>
-                                </div>
-                                <div class="bar">
-                                    <div class="bar-fill" style="width: 85%"></div>
-                                </div>
-                            </div>
-                            <div class="metric-bar">
-                                <div class="metric-info">
-                                    <span>Recall</span>
-                                    <span>≥85%</span>
-                                </div>
-                                <div class="bar">
-                                    <div class="bar-fill" style="width: 85%"></div>
-                                </div>
-                            </div>
-                            <div class="metric-bar">
-                                <div class="metric-info">
-                                    <span>Precision</span>
-                                    <span>≥80%</span>
-                                </div>
-                                <div class="bar">
-                                    <div class="bar-fill" style="width: 80%"></div>
-                                </div>
-                            </div>
-                            <div class="metric-bar">
-                                <div class="metric-info">
-                                    <span>F1-Score</span>
-                                    <span>≥83%</span>
-                                </div>
-                                <div class="bar">
-                                    <div class="bar-fill" style="width: 83%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="about-card">
+                    <h3>Fitur Utama</h3>
+                    <ul class="feature-list">
+                        <li>Deteksi non-invasif via ekspresi wajah</li>
+                        <li>Grad-CAM heatmap (Explainable AI)</li>
+                        <li>Analisis region wajah otomatis</li>
+                        <li>Riwayat & autentikasi user</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
+    <!-- Footer (compact) -->
     <footer class="footer">
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-info">
-                    <div class="footer-brand">Fatigue Detection System</div>
-                    <p class="footer-text">
-                        Penelitian Skripsi - Deteksi Kelelahan Kerja Berbasis CNN<br>
-                        Program Studi Teknik Informatika<br>
-                        Universitas Bunda Mulia - 2026
-                    </p>
-                </div>
-                <div class="footer-meta">
-                    <div class="footer-author">
-                        <div class="author-label">Peneliti</div>
-                        <div class="author-name">Indra Yohanes</div>
-                        <div class="author-id">32220135</div>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 Fatigue Detection System. Developed for academic research.</p>
+            <div class="footer-row">
+                <span>© 2026 Fatigue Detection System — Skripsi Teknik Informatika, Universitas Bunda Mulia</span>
+                <span>Indra Yohanes • 32220135</span>
             </div>
         </div>
     </footer>
 
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModal" style="display:none;">
+        <div class="modal-card">
+            <button class="modal-close" onclick="hideAuthModal()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M5 5L15 15M5 15L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div class="modal-tabs">
+                <button class="modal-tab active" id="loginTab" onclick="switchAuthTab('login')">Masuk</button>
+                <button class="modal-tab" id="registerTab" onclick="switchAuthTab('register')">Daftar</button>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" placeholder="Masukkan username" required minlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Masukkan password" required minlength="4">
+                </div>
+                <div class="form-error" id="loginError" style="display:none;"></div>
+                <button type="submit" class="btn btn-primary btn-block" id="loginSubmitBtn">Masuk</button>
+            </form>
+            <form id="registerForm" style="display:none;" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="registerUsername">Username</label>
+                    <input type="text" id="registerUsername" placeholder="Buat username (min 3 karakter)" required minlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" placeholder="Buat password (min 4 karakter)" required minlength="4">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword2">Konfirmasi Password</label>
+                    <input type="password" id="registerPassword2" placeholder="Ulangi password" required minlength="4">
+                </div>
+                <div class="form-error" id="registerError" style="display:none;"></div>
+                <button type="submit" class="btn btn-primary btn-block" id="registerSubmitBtn">Daftar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <script src="script.js"></script>
 </body>
+
 </html>
