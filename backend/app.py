@@ -9,6 +9,7 @@ import uuid
 import json
 from datetime import datetime
 from werkzeug.utils import secure_filename
+from flask import Flask, send_from_directory
 import base64
 from io import BytesIO
 from PIL import Image
@@ -445,348 +446,272 @@ def encode_image_to_base64(image):
     return jpg_as_text
 
 # ==========================================
-# GRAD-CAM (Explainable AI)
+# ANALISIS EKSPRESI WAJAH
 # ==========================================
 
-def generate_feature_heatmap(face_img, prediction_label):
+def analyze_facial_expressions(face_img, prediction_label, confidence):
     """
-    Generate a simulated attention heatmap using OpenCV feature detection.
-    This is used as a fallback when TensorFlow is not available.
+    Analyze facial expressions using OpenCV Haar cascades.
+    Detects eye state, mouth state, and overall expression based on
+    the CNN prediction and visual feature detection.
     
-    Detects eyes and mouth regions using Haar cascades, then creates
-    a heatmap highlighting fatigue-relevant areas (eyes, mouth).
+    Returns a list of expression indicators with icon, label, value, and status.
     """
     try:
         h, w = face_img.shape[:2]
         gray = cv2.cvtColor(face_img, cv2.COLOR_BGR2GRAY)
         
-        # Create base heatmap
-        heatmap = np.zeros((h, w), dtype=np.float32)
+        # Apply CLAHE for better detection
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        gray = clahe.apply(gray)
         
-        # Load Haar cascades for facial features
+        is_fatigued = prediction_label == 'Fatigued'
+        conf_pct = confidence * 100
+        
+        # --- Eye Detection ---
         eye_cascade = cv2.CascadeClassifier(
             cv2.data.haarcascades + 'haarcascade_eye.xml'
         )
+        eye_tree_cascade = cv2.CascadeClassifier(
+            cv2.data.haarcascades + 'haarcascade_eye_tree_eyeglasses.xml'
+        )
+        
+        # Search in upper 60% of face
+        eye_region = gray[0:int(h * 0.6), :]
+        eyes = eye_cascade.detectMultiScale(
+            eye_region, scaleFactor=1.1, minNeighbors=3,
+            minSize=(max(15, int(w * 0.08)), max(15, int(h * 0.05)))
+        )
+        
+        # Fallback with eyeglasses cascade
+        if len(eyes) == 0:
+            eyes = eye_tree_cascade.detectMultiScale(
+                eye_region, scaleFactor=1.1, minNeighbors=3,
+                minSize=(max(15, int(w * 0.08)), max(15, int(h * 0.05)))
+            )
+        
+        eyes_detected = len(eyes)
+        
+        # Determine eye state based on detection + prediction
+        if is_fatigued:
+            if eyes_detected == 0:
+                eye_state = 'Tertutup'
+                eye_status = 'danger'
+            elif conf_pct > 75:
+                eye_state = 'Setengah Tertutup'
+                eye_status = 'warning'
+            else:
+                eye_state = 'Sayu / Kurang Fokus'
+                eye_status = 'warning'
+        else:
+            if eyes_detected >= 2:
+                eye_state = 'Terbuka Normal'
+                eye_status = 'good'
+            elif eyes_detected == 1:
+                eye_state = 'Terbuka'
+                eye_status = 'good'
+            else:
+                eye_state = 'Tidak Terdeteksi'
+                eye_status = 'neutral'
+        
+        # --- Mouth Detection ---
         mouth_cascade = cv2.CascadeClassifier(
             cv2.data.haarcascades + 'haarcascade_smile.xml'
         )
         
-        # Detect eyes (upper half of face)
-        eye_region = gray[0:int(h*0.6), :]
-        eyes = eye_cascade.detectMultiScale(
-            eye_region, scaleFactor=1.1, minNeighbors=3,
-            minSize=(max(15, int(w*0.08)), max(15, int(h*0.05)))
-        )
-        
-        # Detect mouth (lower half of face)
-        mouth_region = gray[int(h*0.5):, :]
+        # Search in lower 50% of face
+        mouth_region = gray[int(h * 0.5):, :]
         mouths = mouth_cascade.detectMultiScale(
-            mouth_region, scaleFactor=1.2, minNeighbors=10,
-            minSize=(max(20, int(w*0.15)), max(10, int(h*0.05)))
+            mouth_region, scaleFactor=1.3, minNeighbors=15,
+            minSize=(max(20, int(w * 0.15)), max(10, int(h * 0.05)))
         )
         
+        mouths_detected = len(mouths)
+        
+        # Check for wide open mouth (yawning) - larger mouth detection
+        wide_mouths = mouth_cascade.detectMultiScale(
+            mouth_region, scaleFactor=1.1, minNeighbors=5,
+            minSize=(max(30, int(w * 0.25)), max(15, int(h * 0.08)))
+        )
+        
+        if is_fatigued:
+            if len(wide_mouths) > 0 and conf_pct > 70:
+                mouth_state = 'Menguap'
+                mouth_status = 'danger'
+            elif conf_pct > 75:
+                mouth_state = 'Terbuka / Menguap'
+                mouth_status = 'warning'
+            else:
+                mouth_state = 'Kendur / Lesu'
+                mouth_status = 'warning'
+        else:
+            if mouths_detected > 0:
+                mouth_state = 'Normal'
+                mouth_status = 'good'
+            else:
+                mouth_state = 'Normal / Tertutup'
+                mouth_status = 'good'
+        
+        # --- Overall Expression ---
+        if is_fatigued:
+            if conf_pct > 80:
+                expression_state = 'Sangat Lesu'
+                expression_status = 'danger'
+            elif conf_pct > 65:
+                expression_state = 'Lesu / Mengantuk'
+                expression_status = 'warning'
+            else:
+                expression_state = 'Sedikit Lelah'
+                expression_status = 'warning'
+        else:
+            if conf_pct > 80:
+                expression_state = 'Segar & Aktif'
+                expression_status = 'good'
+            elif conf_pct > 65:
+                expression_state = 'Normal'
+                expression_status = 'good'
+            else:
+                expression_state = 'Cukup Baik'
+                expression_status = 'good'
+        
+        # --- Overall Conclusion ---
+        if is_fatigued:
+            conclusion_state = 'Terdeteksi Kelelahan'
+            conclusion_status = 'danger'
+        else:
+            conclusion_state = 'Kondisi Baik'
+            conclusion_status = 'good'
+        
+        expressions = [
+            {
+                'icon': 'eye',
+                'label': 'Mata',
+                'value': eye_state,
+                'status': eye_status,
+                'detail': f'{eyes_detected} mata terdeteksi'
+            },
+            {
+                'icon': 'mouth',
+                'label': 'Mulut',
+                'value': mouth_state,
+                'status': mouth_status,
+                'detail': None
+            },
+            {
+                'icon': 'face',
+                'label': 'Ekspresi',
+                'value': expression_state,
+                'status': expression_status,
+                'detail': None
+            },
+            {
+                'icon': 'result',
+                'label': 'Keseluruhan',
+                'value': conclusion_state,
+                'status': conclusion_status,
+                'detail': None
+            }
+        ]
+        
+        print(f"✅ Expression analysis: eyes={eye_state}, mouth={mouth_state}, expr={expression_state}")
+        return expressions
+        
+    except Exception as e:
+        print(f"❌ Expression analysis failed: {e}")
+        # Return default expression based on prediction
         is_fatigued = prediction_label == 'Fatigued'
-        
-        # Generate Gaussian blobs at detected feature locations
-        for (ex, ey, ew, eh) in eyes:
-            cx, cy = ex + ew//2, ey + eh//2
-            # Create Gaussian blob around eyes
-            intensity = 0.9 if is_fatigued else 0.5
-            sigma_x = ew * 0.8
-            sigma_y = eh * 0.8
-            for y_pos in range(max(0, cy - ew), min(h, cy + ew)):
-                for x_pos in range(max(0, cx - ew), min(w, cx + ew)):
-                    dist = ((x_pos - cx)**2 / (2*sigma_x**2)) + ((y_pos - cy)**2 / (2*sigma_y**2))
-                    heatmap[y_pos, x_pos] = max(heatmap[y_pos, x_pos], intensity * np.exp(-dist))
-        
-        for (mx, my, mw, mh) in mouths:
-            cy = int(h*0.5) + my + mh//2
-            cx = mx + mw//2
-            intensity = 0.7 if is_fatigued else 0.3
-            sigma_x = mw * 0.7
-            sigma_y = mh * 0.7
-            for y_pos in range(max(0, cy - mh), min(h, cy + mh)):
-                for x_pos in range(max(0, cx - mw), min(w, cx + mw)):
-                    dist = ((x_pos - cx)**2 / (2*sigma_x**2)) + ((y_pos - cy)**2 / (2*sigma_y**2))
-                    heatmap[y_pos, x_pos] = max(heatmap[y_pos, x_pos], intensity * np.exp(-dist))
-        
-        # If no features detected, create default region-based heatmap
-        if len(eyes) == 0 and len(mouths) == 0:
-            # Focus on eye area (25-45% height) and mouth area (65-85% height)
-            eye_center_y = int(h * 0.35)
-            mouth_center_y = int(h * 0.75)
-            center_x = w // 2
-            
-            for y_pos in range(h):
-                for x_pos in range(w):
-                    # Eye region contribution
-                    eye_dist = ((x_pos - center_x)**2 / (2*(w*0.3)**2)) + \
-                               ((y_pos - eye_center_y)**2 / (2*(h*0.1)**2))
-                    eye_val = 0.8 * np.exp(-eye_dist)
-                    
-                    # Mouth region contribution
-                    mouth_dist = ((x_pos - center_x)**2 / (2*(w*0.25)**2)) + \
-                                 ((y_pos - mouth_center_y)**2 / (2*(h*0.08)**2))
-                    mouth_val = 0.5 * np.exp(-mouth_dist)
-                    
-                    heatmap[y_pos, x_pos] = max(eye_val, mouth_val)
-        
-        # Normalize heatmap
-        if heatmap.max() > 0:
-            heatmap = heatmap / heatmap.max()
-        
-        # Apply Gaussian blur for smoother visualization
-        ksize = max(3, int(min(h, w) * 0.15)) | 1  # Ensure odd number
-        heatmap = cv2.GaussianBlur(heatmap, (ksize, ksize), 0)
-        
-        # Re-normalize after blur
-        if heatmap.max() > 0:
-            heatmap = heatmap / heatmap.max()
-        
-        # Resize heatmap to face image size (should already be same size)
-        heatmap_resized = cv2.resize(heatmap, (w, h))
-        
-        # Apply colormap (JET: blue=cold, red=hot)
-        heatmap_colored = cv2.applyColorMap(
-            np.uint8(255 * heatmap_resized), cv2.COLORMAP_JET
-        )
-        
-        # Overlay on face image
-        overlay = cv2.addWeighted(face_img, 0.6, heatmap_colored, 0.4, 0)
-        
-        print(f"✅ Feature-based heatmap generated (eyes={len(eyes)}, mouths={len(mouths)})")
-        return overlay, heatmap_resized
-        
-    except Exception as e:
-        import traceback
-        print(f"❌ Feature heatmap generation failed: {e}")
-        traceback.print_exc()
-        return None
+        return [
+            {'icon': 'eye', 'label': 'Mata', 'value': 'Sayu' if is_fatigued else 'Normal', 'status': 'warning' if is_fatigued else 'good', 'detail': None},
+            {'icon': 'mouth', 'label': 'Mulut', 'value': 'Lesu' if is_fatigued else 'Normal', 'status': 'warning' if is_fatigued else 'good', 'detail': None},
+            {'icon': 'face', 'label': 'Ekspresi', 'value': 'Lelah' if is_fatigued else 'Segar', 'status': 'warning' if is_fatigued else 'good', 'detail': None},
+            {'icon': 'result', 'label': 'Keseluruhan', 'value': 'Kelelahan' if is_fatigued else 'Baik', 'status': 'danger' if is_fatigued else 'good', 'detail': None},
+        ]
 
 
-def generate_gradcam(model, preprocessed_img, face_img):
+def get_fatigue_level(prediction_label, confidence):
     """
-    Generate Grad-CAM heatmap overlay on face image.
-    Uses TensorFlow GradientTape to compute gradients of the output
-    w.r.t. the last convolutional layer's feature maps.
+    Determine fatigue level based on prediction and confidence.
     
-    Compatible with TF 2.16+ Sequential models (avoids model.input).
+    Returns: dict with level key, label, and color class
+    - 'normal'  → Tidak Lelah
+    - 'ringan'  → Kelelahan Ringan (fatigued, confidence < 65%)
+    - 'sedang'  → Kelelahan Sedang (fatigued, 65-80%)
+    - 'berat'   → Kelelahan Berat (fatigued, > 80%)
     """
-    try:
-        if not TF_AVAILABLE or tf is None:
-            print("❌ TensorFlow not available for Grad-CAM")
-            return None
-        
-        # Find the last convolutional layer name
-        last_conv_layer_name = None
-        for layer in reversed(model.layers):
-            if isinstance(layer, tf.keras.layers.Conv2D):
-                last_conv_layer_name = layer.name
-                break
-        
-        if last_conv_layer_name is None:
-            print("❌ No Conv2D layer found for Grad-CAM")
-            return None
-        
-        print(f"📊 Grad-CAM: Using last conv layer '{last_conv_layer_name}'")
-        
-        # Forward pass manually through layers, capturing conv output
-        img_tensor = tf.cast(preprocessed_img, tf.float32)
-        
-        with tf.GradientTape() as tape:
-            # Manual forward pass through each layer
-            x = img_tensor
-            conv_output = None
-            
-            for layer in model.layers:
-                x = layer(x, training=False)
-                if layer.name == last_conv_layer_name:
-                    conv_output = x
-                    tape.watch(conv_output)  # Watch conv output for gradient computation
-            
-            predictions = x
-            loss = predictions[:, 0]  # Output neuron
-        
-        if conv_output is None:
-            print("❌ Conv layer output not captured during forward pass")
-            return None
-        
-        # Gradients of the output w.r.t. the conv layer output
-        grads = tape.gradient(loss, conv_output)
-        
-        if grads is None:
-            print("❌ Gradients are None - cannot compute Grad-CAM")
-            return None
-        
-        # Global average pooling of the gradients
-        pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
-        
-        # Weight the conv outputs by the pooled gradients
-        conv_output = conv_output[0]
-        heatmap = conv_output @ pooled_grads[..., tf.newaxis]
-        heatmap = tf.squeeze(heatmap)
-        
-        # Normalize the heatmap
-        heatmap = tf.maximum(heatmap, 0) / (tf.math.reduce_max(heatmap) + 1e-8)
-        heatmap = heatmap.numpy()
-        
-        # Resize heatmap to face image size
-        heatmap_resized = cv2.resize(heatmap, (face_img.shape[1], face_img.shape[0]))
-        
-        # Apply colormap
-        heatmap_colored = cv2.applyColorMap(
-            np.uint8(255 * heatmap_resized), cv2.COLORMAP_JET
-        )
-        
-        # Overlay on face image
-        overlay = cv2.addWeighted(face_img, 0.6, heatmap_colored, 0.4, 0)
-        
-        print("✅ Grad-CAM heatmap generated successfully")
-        return overlay, heatmap_resized
-        
-    except Exception as e:
-        import traceback
-        print(f"❌ Grad-CAM generation failed: {e}")
-        traceback.print_exc()
-        return None
-
-def analyze_face_regions(heatmap, face_shape):
-    """
-    Analyze which face regions contribute most to the prediction.
-    Uses sum of activations above a threshold for accurate contribution.
-    """
-    try:
-        h, w = face_shape[:2]
-        
-        # Resize heatmap to match face dimensions if needed
-        if heatmap.shape[0] != h or heatmap.shape[1] != w:
-            heatmap = cv2.resize(heatmap, (w, h))
-        
-        # Apply threshold to focus on significant activations only
-        threshold = 0.2
-        heatmap_threshed = np.where(heatmap > threshold, heatmap, 0)
-        
-        # Define face regions (approximate proportions for typical face crops)
-        regions = {
-            'Dahi (Forehead)': (0, 0, w, int(h * 0.3)),
-            'Mata (Eyes)': (0, int(h * 0.2), w, int(h * 0.5)),
-            'Hidung (Nose)': (0, int(h * 0.4), w, int(h * 0.65)),
-            'Mulut (Mouth)': (0, int(h * 0.6), w, int(h * 0.85)),
-            'Dagu (Chin)': (0, int(h * 0.8), w, h)
+    conf_pct = confidence * 100
+    
+    if prediction_label != 'Fatigued':
+        return {
+            'level': 'normal',
+            'label': 'Tidak Lelah',
+            'severity': 0
         }
-        
-        region_scores = []
-        total_activation = 0
-        
-        for name, (x1, y1, x2, y2) in regions.items():
-            region_heat = heatmap_threshed[y1:y2, x1:x2]
-            if region_heat.size > 0:
-                # Use SUM of activations (not mean) to avoid bias from region size
-                score = float(np.sum(region_heat))
-            else:
-                score = 0.0
-            region_scores.append({'region': name, 'score': score})
-            total_activation += score
-        
-        # Convert to percentages
-        if total_activation > 0:
-            for item in region_scores:
-                item['contribution'] = round((item['score'] / total_activation) * 100, 1)
-        else:
-            for item in region_scores:
-                item['contribution'] = 20.0  # Equal distribution
-        
-        # Sort by contribution (highest first)
-        region_scores.sort(key=lambda x: x['contribution'], reverse=True)
-        
-        # Remove the raw score from the response
-        for item in region_scores:
-            del item['score']
-        
-        return region_scores
-        
-    except Exception as e:
-        print(f"Face region analysis failed: {e}")
-        return None
+    
+    if conf_pct >= 80:
+        return {
+            'level': 'berat',
+            'label': 'Kelelahan Berat',
+            'severity': 3
+        }
+    elif conf_pct >= 65:
+        return {
+            'level': 'sedang',
+            'label': 'Kelelahan Sedang',
+            'severity': 2
+        }
+    else:
+        return {
+            'level': 'ringan',
+            'label': 'Kelelahan Ringan',
+            'severity': 1
+        }
 
-def generate_explanation(prediction, confidence, face_regions):
-    """
-    Generate a human-readable explanation of why the model made its prediction.
-    """
-    try:
-        if face_regions is None or len(face_regions) == 0:
-            return None
-        
-        top_region = face_regions[0]['region']
-        top_contribution = face_regions[0]['contribution']
-        
-        if prediction == 'Fatigued':
-            explanation = (
-                f"Model CNN mendeteksi **kelelahan** dengan tingkat keyakinan "
-                f"**{confidence}%**. Area wajah yang paling berpengaruh adalah "
-                f"**{top_region}** ({top_contribution}% kontribusi). "
-            )
-            if 'Mata' in top_region:
-                explanation += (
-                    "Hal ini menunjukkan bahwa pola area mata (seperti kelopak mata "
-                    "turun, lingkaran hitam, atau mata setengah tertutup) menjadi "
-                    "indikator utama kelelahan yang terdeteksi oleh model."
-                )
-            elif 'Mulut' in top_region:
-                explanation += (
-                    "Hal ini menunjukkan bahwa pola area mulut (seperti menguap "
-                    "atau ekspresi wajah yang kendur) menjadi indikator utama "
-                    "kelelahan yang terdeteksi oleh model."
-                )
-            else:
-                explanation += (
-                    "Pola visual di area tersebut menunjukkan tanda-tanda "
-                    "kelelahan yang dikenali oleh model CNN."
-                )
-        else:
-            explanation = (
-                f"Model CNN mendeteksi wajah dalam kondisi **tidak lelah** dengan "
-                f"tingkat keyakinan **{confidence}%**. Area wajah yang paling "
-                f"berpengaruh dalam keputusan ini adalah **{top_region}** "
-                f"({top_contribution}% kontribusi). "
-                "Pola visual menunjukkan ekspresi wajah yang segar dan aktif."
-            )
-        
-        return explanation
-        
-    except Exception as e:
-        print(f"Explanation generation failed: {e}")
-        return None
 
 def get_recommendation(prediction, confidence):
-    """Generate recommendation"""
-    if prediction == "Fatigued":
-        if confidence > 0.8:
-            return {
-                'level': 'high',
-                'message': 'Tingkat kelelahan tinggi terdeteksi. Sangat disarankan untuk beristirahat segera.',
-                'actions': [
-                    'Hentikan aktivitas kerja sementara',
-                    'Istirahat minimal 15-20 menit',
-                    'Konsumsi air putih yang cukup',
-                    'Jika diperlukan, konsultasikan dengan supervisor'
-                ]
-            }
-        else:
-            return {
-                'level': 'moderate',
-                'message': 'Tanda-tanda kelelahan terdeteksi. Pertimbangkan untuk beristirahat.',
-                'actions': [
-                    'Ambil jeda singkat 5-10 menit',
-                    'Lakukan peregangan ringan',
-                    'Pastikan pencahayaan ruangan memadai',
-                    'Monitor kondisi Anda secara berkala'
-                ]
-            }
+    """Generate recommendation based on fatigue level"""
+    fatigue = get_fatigue_level(prediction, confidence)
+    level = fatigue['level']
+    
+    if level == 'berat':
+        return {
+            'level': 'berat',
+            'message': 'Anda mengalami kelelahan berat. Segera hentikan aktivitas dan istirahat.',
+            'actions': [
+                'Hentikan semua aktivitas kerja segera',
+                'Istirahat minimal 20-30 menit',
+                'Cuci muka dengan air dingin',
+                'Konsumsi air putih dan makanan ringan',
+                'Jika memungkinkan, tidur sejenak (power nap)',
+                'Laporkan kondisi Anda ke supervisor'
+            ]
+        }
+    elif level == 'sedang':
+        return {
+            'level': 'sedang',
+            'message': 'Tanda-tanda kelelahan sedang terdeteksi. Pertimbangkan untuk segera beristirahat.',
+            'actions': [
+                'Ambil jeda istirahat 10-15 menit',
+                'Lakukan peregangan ringan',
+                'Cuci muka atau kompres mata',
+                'Minum air putih yang cukup',
+                'Hindari tugas yang memerlukan konsentrasi tinggi'
+            ]
+        }
+    elif level == 'ringan':
+        return {
+            'level': 'ringan',
+            'message': 'Tanda awal kelelahan mulai terdeteksi. Jaga kondisi Anda.',
+            'actions': [
+                'Ambil jeda singkat 5-10 menit',
+                'Pastikan pencahayaan ruangan memadai',
+                'Lakukan peregangan mata (lihat jauh 20 detik)',
+                'Monitor kondisi Anda secara berkala'
+            ]
+        }
     else:
         return {
             'level': 'normal',
-            'message': 'Kondisi baik. Tidak terdeteksi tanda-tanda kelelahan signifikan.',
+            'message': 'Kondisi baik. Tidak terdeteksi tanda-tanda kelelahan.',
             'actions': [
                 'Tetap jaga pola istirahat yang teratur',
                 'Hindari bekerja terlalu lama tanpa jeda',
@@ -797,6 +722,14 @@ def get_recommendation(prediction, confidence):
 # ==========================================
 # AUTH ENDPOINTS
 # ==========================================
+@app.route('/')
+def serve_frontend():
+    return send_from_directory('../frontend', 'index.html')
+
+@app.route('/<path:path>')
+def static_files(path):
+    return send_from_directory('../frontend', path)
+
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -1065,34 +998,11 @@ def detect_fatigue_endpoint():
         # Encode face
         face_base64 = encode_image_to_base64(face_img)
         
-        # Grad-CAM / Feature Heatmap
-        gradcam_base64 = None
-        face_regions = None
-        explanation = None
+        # Facial Expression Analysis
+        expressions = analyze_facial_expressions(face_img, prediction_label, confidence)
         
-        print(f"📊 Heatmap: MODEL loaded = {MODEL is not None}, TF_AVAILABLE = {TF_AVAILABLE}")
-        
-        heatmap_result = None
-        
-        if MODEL is not None and TF_AVAILABLE:
-            # Use real Grad-CAM with TensorFlow model
-            heatmap_result = generate_gradcam(MODEL, preprocessed, face_img)
-            print(f"📊 Grad-CAM result: {heatmap_result is not None}")
-        
-        if heatmap_result is None:
-            # Fallback: use OpenCV feature-based heatmap
-            print("📊 Using feature-based heatmap (fallback)")
-            heatmap_result = generate_feature_heatmap(face_img, prediction_label)
-        
-        if heatmap_result is not None:
-            gradcam_overlay, heatmap = heatmap_result
-            gradcam_base64 = encode_image_to_base64(gradcam_overlay)
-            face_regions = analyze_face_regions(heatmap, face_img.shape)
-            conf_pct = round(confidence * 100, 2)
-            explanation = generate_explanation(prediction_label, conf_pct, face_regions)
-            print(f"📊 Heatmap: overlay generated, regions={face_regions is not None}, explanation={explanation is not None}")
-        else:
-            print("⚠️ Heatmap: no heatmap could be generated")
+        # Fatigue Level
+        fatigue_level = get_fatigue_level(prediction_label, confidence)
         
         # Response
         detection_timestamp = datetime.now().isoformat()
@@ -1112,9 +1022,8 @@ def detect_fatigue_endpoint():
                 'height': int(bbox[3])
             },
             'face_image': face_base64,
-            'gradcam_image': gradcam_base64,
-            'face_regions': face_regions,
-            'explanation': explanation,
+            'expressions': expressions,
+            'fatigue_level': fatigue_level,
             'timestamp': detection_timestamp,
             'recommendation': get_recommendation(prediction_label, confidence)
         }
@@ -1135,9 +1044,9 @@ def detect_fatigue_endpoint():
                         prediction_label,
                         conf_value,
                         face_base64,
-                        gradcam_base64,
-                        json.dumps(face_regions) if face_regions else None,
-                        explanation,
+                        None,
+                        json.dumps(expressions) if expressions else None,
+                        fatigue_level.get('label', ''),
                         detection_timestamp
                     )
                 )

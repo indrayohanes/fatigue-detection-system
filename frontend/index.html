@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Deteksi Kelelahan Kerja - CNN</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
@@ -16,9 +18,15 @@
             <div class="nav-brand">
                 <div class="brand-icon">
                     <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-                        <path d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z" fill="currentColor" />
-                        <path d="M20 14C21.1046 14 22 13.1046 22 12C22 10.8954 21.1046 10 20 10C18.8954 10 18 10.8954 18 12C18 13.1046 18.8954 14 20 14Z" fill="currentColor" />
-                        <path d="M11 19C11 18.4477 11.4477 18 12 18H20C20.5523 18 21 18.4477 21 19C21 21.2091 19.2091 23 17 23H15C12.7909 23 11 21.2091 11 19Z" fill="currentColor" />
+                        <path
+                            d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z"
+                            fill="currentColor" />
+                        <path
+                            d="M20 14C21.1046 14 22 13.1046 22 12C22 10.8954 21.1046 10 20 10C18.8954 10 18 10.8954 18 12C18 13.1046 18.8954 14 20 14Z"
+                            fill="currentColor" />
+                        <path
+                            d="M11 19C11 18.4477 11.4477 18 12 18H20C20.5523 18 21 18.4477 21 19C21 21.2091 19.2091 23 17 23H15C12.7909 23 11 21.2091 11 19Z"
+                            fill="currentColor" />
                     </svg>
                 </div>
                 <div class="brand-title">Fatigue Detection</div>
@@ -65,14 +73,18 @@
                         <span class="gradient-text">Berbasis Ekspresi Wajah</span>
                     </h1>
                     <p class="hero-desc">
-                        Cukup upload foto wajah, sistem akan otomatis menganalisis apakah Anda
+                        Cukup ambil foto wajah menggunakan kamera, sistem akan otomatis menganalisis apakah Anda
                         sedang dalam kondisi <strong>lelah atau tidak</strong> menggunakan teknologi
-                        kecerdasan buatan (<strong>CNN</strong>). Tanpa sensor, tanpa alat tambahan — 
-                        cukup satu foto.
+                        kecerdasan buatan (<strong>CNN</strong>). Tanpa sensor, tanpa alat tambahan —
+                        cukup satu foto dari kamera.
                     </p>
                     <div class="hero-cta">
                         <a href="#detection" class="btn btn-primary">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
                             <span>Mulai Deteksi</span>
                         </a>
                         <a href="#about" class="btn btn-secondary">Pelajari Sistem</a>
@@ -82,34 +94,67 @@
                     <div class="process-flow">
                         <div class="process-step">
                             <div class="process-icon upload-icon-step">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path
+                                        d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                    <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" />
+                                </svg>
                             </div>
-                            <div class="process-label">Upload<br><span>Foto Wajah</span></div>
+                            <div class="process-label">Ambil<br><span>Foto Wajah</span></div>
                         </div>
                         <div class="process-arrow">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
                         </div>
                         <div class="process-step">
                             <div class="process-icon detect-icon-step">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="17.5" r="3.5" stroke="currentColor" stroke-width="2"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor"
+                                        stroke-width="2" />
+                                    <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor"
+                                        stroke-width="2" />
+                                    <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor"
+                                        stroke-width="2" />
+                                    <circle cx="17.5" cy="17.5" r="3.5" stroke="currentColor" stroke-width="2" />
+                                </svg>
                             </div>
                             <div class="process-label">Deteksi<br><span>Wajah</span></div>
                         </div>
                         <div class="process-arrow">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
                         </div>
                         <div class="process-step">
                             <div class="process-icon cnn-icon-step">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                </svg>
                             </div>
                             <div class="process-label">Analisis<br><span>CNN</span></div>
                         </div>
                         <div class="process-arrow">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
                         </div>
                         <div class="process-step">
                             <div class="process-icon result-icon-step">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                </svg>
                             </div>
                             <div class="process-label">Hasil<br><span>& Saran</span></div>
                         </div>
@@ -117,7 +162,7 @@
                     <div class="hero-features-row">
                         <div class="hero-feature">
                             <div class="hero-feature-icon">📸</div>
-                            <span>Upload Foto</span>
+                            <span>Kamera Langsung</span>
                         </div>
                         <div class="hero-feature">
                             <div class="hero-feature-icon">🧠</div>
@@ -140,159 +185,185 @@
     <!-- Detection Section (Main) -->
     <section id="detection" class="detection-section">
         <div class="container">
-            <div class="detection-grid">
-                <!-- Left: Upload -->
-                <div class="upload-card">
-                    <div class="card-title">Upload Gambar Wajah</div>
-                    <div class="upload-area" id="uploadArea">
-                        <input type="file" id="imageInput" accept="image/*" hidden>
-                        <div class="upload-content" id="uploadContent">
-                            <svg class="upload-icon" width="48" height="48" viewBox="0 0 64 64" fill="none">
-                                <rect x="8" y="8" width="48" height="48" rx="8" stroke="currentColor" stroke-width="2" opacity="0.2" />
-                                <path d="M32 20V44M20 32H44" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
-                            </svg>
-                            <h3 class="upload-title">Klik atau Drag & Drop</h3>
-                            <p class="upload-hint">JPG, PNG • Max 10MB</p>
-                        </div>
-                        <div class="preview-container" id="previewContainer" style="display: none;">
-                            <img id="imagePreview" alt="Preview">
-                            <button class="remove-image" id="removeImage">
-                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                                    <path d="M5 5L15 15M5 15L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary btn-block" id="analyzeBtn" disabled>
-                        <span id="analyzeBtnText">Pilih Gambar Terlebih Dahulu</span>
-                        <div class="btn-loader" id="btnLoader" style="display: none;"></div>
-                    </button>
-                </div>
-
-                <!-- Right: Results -->
-                <div class="results-card" id="resultsCard">
-                    <div class="card-title">Hasil Deteksi</div>
-                    <div class="results-empty" id="resultsEmpty">
-                        <svg width="56" height="56" viewBox="0 0 80 80" fill="none">
-                            <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="2" opacity="0.1" />
-                            <path d="M40 28V40M40 48V52" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+            <div class="camera-section">
+                <div class="camera-card">
+                    <div class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" />
                         </svg>
-                        <h3>Menunggu Analisis</h3>
-                        <p>Upload gambar wajah lalu klik analisis</p>
+                        Kamera — Ambil Foto Wajah
                     </div>
-
-                    <div class="results-content" id="resultsContent" style="display: none;">
-                        <!-- Status Banner -->
-                        <div class="result-status-banner" id="resultStatusBanner">
-                            <div class="status-banner-icon" id="statusIcon"></div>
-                            <div class="status-banner-text" id="statusValue">-</div>
-                        </div>
-
-                        <!-- Confidence Bar -->
-                        <div class="confidence-section">
-                            <div class="confidence-header">
-                                <span class="confidence-label">Confidence Level</span>
-                                <span class="confidence-value" id="confidenceValue">0%</span>
-                            </div>
-                            <div class="confidence-bar">
-                                <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
-                            </div>
-                        </div>
-
-                        <!-- Face + Heatmap side by side -->
-                        <div class="face-comparison-grid">
-                            <div class="face-comparison-item">
-                                <div class="comparison-label">
-                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.5" />
-                                        <path d="M2 14C2 11.2386 4.68629 9 8 9C11.3137 9 14 11.2386 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                                    </svg>
-                                    <span>Wajah</span>
-                                </div>
-                                <div class="comparison-image-wrapper">
-                                    <img id="faceImage" alt="Detected Face">
-                                </div>
-                            </div>
-                            <div class="face-comparison-item" id="gradcamCard" style="display: none;">
-                                <div class="comparison-label gradcam-label">
-                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" opacity="0.5" />
-                                        <circle cx="8" cy="8" r="2.5" fill="currentColor" />
-                                    </svg>
-                                    <span>Grad-CAM</span>
-                                </div>
-                                <div class="comparison-image-wrapper gradcam-wrapper">
-                                    <img id="gradcamImage" alt="Grad-CAM Heatmap">
-                                    <div class="heatmap-legend">
-                                        <div class="legend-bar"></div>
-                                        <div class="legend-labels"><span>Rendah</span><span>Tinggi</span></div>
-                                    </div>
-                                </div>
+                    <div class="camera-container" id="cameraContainer">
+                        <video id="cameraVideo" autoplay playsinline muted></video>
+                        <canvas id="captureCanvas" style="display:none;"></canvas>
+                        <div class="camera-overlay" id="cameraOverlay">
+                            <div class="face-guide">
+                                <svg viewBox="0 0 200 200" fill="none">
+                                    <path d="M50 10 L10 10 L10 50" stroke="rgba(255,255,255,0.6)" stroke-width="3"
+                                        stroke-linecap="round" />
+                                    <path d="M150 10 L190 10 L190 50" stroke="rgba(255,255,255,0.6)" stroke-width="3"
+                                        stroke-linecap="round" />
+                                    <path d="M50 190 L10 190 L10 150" stroke="rgba(255,255,255,0.6)" stroke-width="3"
+                                        stroke-linecap="round" />
+                                    <path d="M150 190 L190 190 L190 150" stroke="rgba(255,255,255,0.6)" stroke-width="3"
+                                        stroke-linecap="round" />
+                                </svg>
                             </div>
                         </div>
-
-                        <!-- Heatmap Note (hidden by default) -->
-                        <div class="heatmap-note" id="heatmapNote" style="display: none;">
-                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                                <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" opacity="0.5" />
-                                <path d="M8 5V8.5M8 11V11.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                        <div class="camera-loading" id="cameraLoading">
+                            <div class="camera-loading-spinner"></div>
+                            <p>Mengakses kamera...</p>
+                        </div>
+                        <div class="camera-error" id="cameraError" style="display:none;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                <path d="M1 1l22 22M21 21H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v9"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
                             </svg>
-                            <span>Area <strong style="color:#ef4444">merah/kuning</strong> = area wajah paling berpengaruh pada prediksi model.</span>
-                        </div>
-
-                        <!-- Region Analysis -->
-                        <div class="region-analysis-card" id="regionAnalysisCard" style="display: none;">
-                            <div class="region-analysis-header">
-                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                                    <rect x="2" y="10" width="4" height="8" rx="1" fill="currentColor" opacity="0.3" />
-                                    <rect x="8" y="6" width="4" height="12" rx="1" fill="currentColor" opacity="0.6" />
-                                    <rect x="14" y="2" width="4" height="16" rx="1" fill="currentColor" />
-                                </svg>
-                                <span>Kontribusi Region Wajah</span>
-                            </div>
-                            <div class="region-bars" id="regionBars"></div>
-                        </div>
-
-                        <!-- AI Explanation -->
-                        <div class="ai-explanation-card" id="aiExplanationCard" style="display: none;">
-                            <div class="ai-explanation-header">
-                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                                    <path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8z" stroke="currentColor" stroke-width="1.5" fill="none" />
-                                    <path d="M7 10L9 12L13 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <span>Penjelasan AI</span>
-                            </div>
-                            <p class="ai-explanation-text" id="aiExplanationText"></p>
-                        </div>
-
-                        <!-- Recommendation -->
-                        <div class="result-recommendation" id="resultRecommendation">
-                            <div class="recommendation-header">
-                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                                    <path d="M10 2L12.09 6.26L17 7.27L13.5 10.97L14.18 16L10 13.77L5.82 16L6.5 10.97L3 7.27L7.91 6.26L10 2Z" stroke="currentColor" stroke-width="1.5" fill="none" />
-                                </svg>
-                                <span>Rekomendasi</span>
-                            </div>
-                            <p class="recommendation-message" id="recommendationMessage"></p>
-                            <ul class="recommendation-actions" id="recommendationActions"></ul>
-                        </div>
-
-                        <!-- Meta -->
-                        <div class="result-meta">
-                            <div class="meta-item">
-                                <div class="meta-label">Waktu</div>
-                                <div class="meta-value" id="detectionTime">-</div>
-                            </div>
-                            <div class="meta-item">
-                                <div class="meta-label">Model</div>
-                                <div class="meta-value">CNN (Trained)</div>
-                            </div>
+                            <p id="cameraErrorText">Tidak dapat mengakses kamera</p>
+                            <button class="btn btn-secondary" onclick="startCamera()">Coba Lagi</button>
                         </div>
                     </div>
+                    <div class="camera-controls">
+                        <button class="btn btn-capture" id="captureBtn" disabled>
+                            <div class="capture-ring">
+                                <div class="capture-inner"></div>
+                            </div>
+                            <span>Ambil Foto</span>
+                        </button>
+                        <button class="btn btn-switch-camera" id="switchCameraBtn" title="Ganti Kamera"
+                            style="display:none;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M20 16v4a2 2 0 01-2 2h-4M14 2H4a2 2 0 00-2 2v4M22 12A10 10 0 002 12"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <polyline points="16 2 20 6 24 2" stroke="currentColor" stroke-width="2" />
+                                <polyline points="4 22 0 18 4 14" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="camera-hint">Posisikan wajah Anda di dalam bingkai, pastikan pencahayaan baik</p>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Result Popup Modal -->
+    <div class="result-modal-overlay" id="resultModal" style="display:none;">
+        <div class="result-modal">
+            <button class="modal-close" id="resultModalClose">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M5 5L15 15M5 15L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+            </button>
+            <div class="result-modal-body">
+                <!-- Loading state -->
+                <div class="result-loading" id="resultLoading">
+                    <div class="result-loading-spinner"></div>
+                    <p>Menganalisis wajah dengan CNN...</p>
+                </div>
+
+                <!-- Result content -->
+                <div class="result-modal-content" id="resultModalContent" style="display:none;">
+                    <!-- Status Banner -->
+                    <div class="result-status-banner" id="resultStatusBanner">
+                        <div class="status-banner-icon" id="statusIcon"></div>
+                        <div class="status-banner-text" id="statusValue">-</div>
+                    </div>
+
+                    <!-- Confidence Bar -->
+                    <div class="confidence-section">
+                        <div class="confidence-header">
+                            <span class="confidence-label">Confidence Level</span>
+                            <span class="confidence-value" id="confidenceValue">0%</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Fatigue Level Badge -->
+                    <div class="fatigue-level-section" id="fatigueLevelSection">
+                        <div class="fatigue-level-badge" id="fatigueLevelBadge">
+                            <span class="fatigue-level-icon" id="fatigueLevelIcon"></span>
+                            <span class="fatigue-level-text" id="fatigueLevelText">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Face Image -->
+                    <div class="face-detected-section">
+                        <div class="face-detected-label">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                <circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M2 14C2 11.2386 4.68629 9 8 9C11.3137 9 14 11.2386 14 14" stroke="currentColor"
+                                    stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                            <span>Wajah Terdeteksi</span>
+                        </div>
+                        <div class="face-detected-image">
+                            <img id="faceImage" alt="Detected Face">
+                        </div>
+                    </div>
+
+                    <!-- Expression Analysis -->
+                    <div class="expression-analysis-card" id="expressionAnalysisCard">
+                        <div class="expression-analysis-header">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5" />
+                                <circle cx="7" cy="8" r="1.5" fill="currentColor" />
+                                <circle cx="13" cy="8" r="1.5" fill="currentColor" />
+                                <path d="M6 13C7 14.5 9 15 10 15C11 15 13 14.5 14 13" stroke="currentColor"
+                                    stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                            <span>Analisis Ekspresi Wajah</span>
+                        </div>
+                        <div class="expression-list" id="expressionList"></div>
+                    </div>
+
+                    <!-- Recommendation -->
+                    <div class="result-recommendation" id="resultRecommendation">
+                        <div class="recommendation-header">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                <path
+                                    d="M10 2L12.09 6.26L17 7.27L13.5 10.97L14.18 16L10 13.77L5.82 16L6.5 10.97L3 7.27L7.91 6.26L10 2Z"
+                                    stroke="currentColor" stroke-width="1.5" fill="none" />
+                            </svg>
+                            <span>Rekomendasi</span>
+                        </div>
+                        <p class="recommendation-message" id="recommendationMessage"></p>
+                        <ul class="recommendation-actions" id="recommendationActions"></ul>
+                    </div>
+
+                    <!-- Meta -->
+                    <div class="result-meta">
+                        <div class="meta-item">
+                            <div class="meta-label">Waktu</div>
+                            <div class="meta-value" id="detectionTime">-</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Model</div>
+                            <div class="meta-value">CNN (Trained)</div>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="result-modal-actions">
+                        <button class="btn btn-primary" id="retakeBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            Ambil Foto Lagi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- History Section -->
     <section id="history" class="history-section" style="display:none;">
@@ -304,17 +375,20 @@
             <div class="history-list" id="historyList">
                 <div class="history-empty" id="historyEmpty">
                     <svg width="48" height="48" viewBox="0 0 64 64" fill="none">
-                        <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="2" opacity="0.1"/>
-                        <path d="M22 32H42M32 22V42" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.2"/>
+                        <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="2" opacity="0.1" />
+                        <path d="M22 32H42M32 22V42" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            opacity="0.2" />
                     </svg>
                     <h3>Belum ada riwayat</h3>
                     <p>Lakukan deteksi untuk melihat riwayat di sini</p>
                 </div>
             </div>
             <div class="history-pagination" id="historyPagination" style="display:none;">
-                <button class="btn btn-secondary btn-sm" id="prevPageBtn" onclick="loadHistory(currentHistoryPage - 1)" disabled>← Sebelumnya</button>
+                <button class="btn btn-secondary btn-sm" id="prevPageBtn" onclick="loadHistory(currentHistoryPage - 1)"
+                    disabled>← Sebelumnya</button>
                 <span class="page-info" id="pageInfo">Halaman 1</span>
-                <button class="btn btn-secondary btn-sm" id="nextPageBtn" onclick="loadHistory(currentHistoryPage + 1)" disabled>Selanjutnya →</button>
+                <button class="btn btn-secondary btn-sm" id="nextPageBtn" onclick="loadHistory(currentHistoryPage + 1)"
+                    disabled>Selanjutnya →</button>
             </div>
         </div>
     </section>
@@ -328,7 +402,8 @@
             <div class="about-grid">
                 <div class="about-card">
                     <h3>Deskripsi</h3>
-                    <p>Sistem deteksi kelelahan kerja menggunakan Convolutional Neural Network (CNN) yang menganalisis ekspresi wajah secara non-invasif untuk meningkatkan keselamatan dan produktivitas kerja.</p>
+                    <p>Sistem deteksi kelelahan kerja menggunakan Convolutional Neural Network (CNN) yang menganalisis
+                        ekspresi wajah secara non-invasif untuk meningkatkan keselamatan dan produktivitas kerja.</p>
                 </div>
                 <div class="about-card">
                     <h3>Teknologi</h3>
@@ -367,7 +442,7 @@
         <div class="modal-card">
             <button class="modal-close" onclick="hideAuthModal()">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M5 5L15 15M5 15L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M5 5L15 15M5 15L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                 </svg>
             </button>
             <div class="modal-tabs">
@@ -389,11 +464,13 @@
             <form id="registerForm" style="display:none;" onsubmit="handleRegister(event)">
                 <div class="form-group">
                     <label for="registerUsername">Username</label>
-                    <input type="text" id="registerUsername" placeholder="Buat username (min 3 karakter)" required minlength="3">
+                    <input type="text" id="registerUsername" placeholder="Buat username (min 3 karakter)" required
+                        minlength="3">
                 </div>
                 <div class="form-group">
                     <label for="registerPassword">Password</label>
-                    <input type="password" id="registerPassword" placeholder="Buat password (min 4 karakter)" required minlength="4">
+                    <input type="password" id="registerPassword" placeholder="Buat password (min 4 karakter)" required
+                        minlength="4">
                 </div>
                 <div class="form-group">
                     <label for="registerPassword2">Konfirmasi Password</label>
