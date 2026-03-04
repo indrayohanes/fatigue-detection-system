@@ -265,6 +265,36 @@
                     <p>Menganalisis wajah dengan CNN...</p>
                 </div>
 
+                <!-- Error state -->
+                <div class="result-error" id="resultError" style="display:none;">
+                    <div class="result-error-icon">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="#ef4444" stroke-width="2" />
+                            <path d="M12 8v4M12 16v.01" stroke="#ef4444" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <h3 class="result-error-title">Wajah Tidak Terdeteksi</h3>
+                    <p class="result-error-message" id="resultErrorMessage">Pastikan wajah Anda terlihat jelas di kamera
+                    </p>
+                    <div class="result-error-tips">
+                        <p>💡 Tips:</p>
+                        <ul>
+                            <li>Pastikan pencahayaan cukup terang</li>
+                            <li>Hadapkan wajah ke kamera</li>
+                            <li>Jangan terlalu jauh atau terlalu dekat</li>
+                            <li>Hindari latar belakang yang terlalu ramai</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-primary" id="retryBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                        Coba Lagi
+                    </button>
+                </div>
+
                 <!-- Result content -->
                 <div class="result-modal-content" id="resultModalContent" style="display:none;">
                     <!-- Status Banner -->

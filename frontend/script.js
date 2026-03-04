@@ -1,7 +1,7 @@
 // ========================================
 // Configuration
 // ========================================
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = '/api';
 
 // ========================================
 // State
@@ -42,6 +42,9 @@ const elements = {
     recommendationActions: document.getElementById('recommendationActions'),
     detectionTime: document.getElementById('detectionTime'),
     retakeBtn: document.getElementById('retakeBtn'),
+    retryBtn: document.getElementById('retryBtn'),
+    resultError: document.getElementById('resultError'),
+    resultErrorMessage: document.getElementById('resultErrorMessage'),
     // Expression & Fatigue Level elements
     fatigueLevelBadge: document.getElementById('fatigueLevelBadge'),
     fatigueLevelIcon: document.getElementById('fatigueLevelIcon'),
@@ -77,6 +80,11 @@ function initializeEventListeners() {
 
     // Retake button
     elements.retakeBtn.addEventListener('click', closeResultModal);
+
+    // Retry button (on error state)
+    if (elements.retryBtn) {
+        elements.retryBtn.addEventListener('click', closeResultModal);
+    }
 
     // Close modal on overlay click
     elements.resultModal.addEventListener('click', (e) => {
@@ -281,13 +289,12 @@ async function captureAndAnalyze() {
                 // Refresh history
                 if (authToken) loadHistory();
             } else {
-                showError(data.error || 'Gagal melakukan deteksi');
-                closeResultModal();
+                // Show error IN the modal instead of closing it
+                showResultError(data.error || 'Gagal melakukan deteksi');
             }
         } catch (error) {
             console.error('Analysis error:', error);
-            showError(error.message || 'Terjadi kesalahan saat menganalisis gambar');
-            closeResultModal();
+            showResultError(error.message || 'Terjadi kesalahan saat menganalisis gambar');
         }
     }, 'image/jpeg', 0.92);
 }
@@ -299,6 +306,7 @@ function showResultModal() {
     elements.resultModal.style.display = 'flex';
     elements.resultLoading.style.display = 'flex';
     elements.resultModalContent.style.display = 'none';
+    elements.resultError.style.display = 'none';
     document.body.style.overflow = 'hidden';
 
     // Animate in
@@ -315,7 +323,17 @@ function closeResultModal() {
         // Reset for next use
         elements.resultLoading.style.display = 'flex';
         elements.resultModalContent.style.display = 'none';
+        elements.resultError.style.display = 'none';
     }, 300);
+}
+
+function showResultError(message) {
+    elements.resultLoading.style.display = 'none';
+    elements.resultModalContent.style.display = 'none';
+    elements.resultError.style.display = 'flex';
+    if (elements.resultErrorMessage) {
+        elements.resultErrorMessage.textContent = message || 'Wajah tidak terdeteksi. Pastikan wajah Anda terlihat jelas di kamera.';
+    }
 }
 
 // ========================================

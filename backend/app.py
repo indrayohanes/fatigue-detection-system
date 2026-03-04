@@ -141,12 +141,12 @@ def allowed_file(filename):
 def is_valid_face(x, y, w, h, img_h, img_w, min_ratio=0.10):
     """
     Validate if a detected region is likely a real face.
-    - Aspect ratio check (faces are roughly square, 0.5 to 2.0)
+    - Aspect ratio check (faces are roughly square, 0.4 to 2.5)
     - Minimum size relative to image (at least min_ratio of image dimension)
-    - Position check: face should be in upper 75% of image
+    - Accept faces ANYWHERE in frame (no position restriction)
     """
     aspect_ratio = w / h if h > 0 else 0
-    if aspect_ratio < 0.5 or aspect_ratio > 2.0:
+    if aspect_ratio < 0.4 or aspect_ratio > 2.5:
         return False
     
     # Minimum size: face should be at least min_ratio of image width or height
@@ -154,11 +154,8 @@ def is_valid_face(x, y, w, h, img_h, img_w, min_ratio=0.10):
     if w < min_size or h < min_size:
         return False
     
-    # Face should generally be in the upper 75% of the image
-    face_center_y = y + h / 2
-    if face_center_y > img_h * 0.85:
-        return False
-    
+    # Accept faces anywhere in the frame — no position restriction
+    # This allows edge/corner faces from webcam to be detected
     return True
 
 def select_best_face(faces, img_h, img_w, min_ratio=0.10):
@@ -181,8 +178,9 @@ def select_best_face(faces, img_h, img_w, min_ratio=0.10):
             # Size score (bigger = better)
             size_score = (w * h) / (img_w * img_h)
             
-            # Combined score: size is most important, position is secondary
-            score = size_score * 10 - dist_x * 2 - dist_y * 1
+            # Combined score: size is most important, position has minimal effect
+            # Low position weight so off-center faces are NOT penalized
+            score = size_score * 10 - dist_x * 0.5 - dist_y * 0.3
             valid_faces.append((x, y, w, h, score))
     
     if not valid_faces:
