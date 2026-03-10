@@ -1325,6 +1325,62 @@ body {
 }
 
 /* ========================================
+   Login Required Overlay
+   ======================================== */
+.login-required-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.login-required-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2.5rem 2rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg), 0 0 60px rgba(99, 102, 241, 0.08);
+    max-width: 420px;
+    width: 100%;
+}
+
+.login-required-icon {
+    color: var(--primary-light);
+    margin-bottom: 1.25rem;
+    opacity: 0.85;
+}
+
+.login-required-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.login-required-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    max-width: 320px;
+}
+
+/* ========================================
+   History Page Section
+   ======================================== */
+.history-page-section {
+    display: block !important;
+    min-height: calc(100vh - 180px);
+    padding-top: 2.5rem;
+}
+
+/* ========================================
    Section Headers
    ======================================== */
 .section-header-compact {
@@ -1347,6 +1403,7 @@ body {
     padding: 2rem 0;
     border-top: 1px solid var(--border);
 }
+
 
 .history-count {
     font-size: 0.875rem;

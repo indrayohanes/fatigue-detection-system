@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Deteksi - Sistem Deteksi Kelelahan Kerja</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <div class="brand-icon">
+                    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                        <path
+                            d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z"
+                            fill="currentColor" />
+                        <path
+                            d="M20 14C21.1046 14 22 13.1046 22 12C22 10.8954 21.1046 10 20 10C18.8954 10 18 10.8954 18 12C18 13.1046 18.8954 14 20 14Z"
+                            fill="currentColor" />
+                        <path
+                            d="M11 19C11 18.4477 11.4477 18 12 18H20C20.5523 18 21 18.4477 21 19C21 21.2091 19.2091 23 17 23H15C12.7909 23 11 21.2091 11 19Z"
+                            fill="currentColor" />
+                    </svg>
+                </div>
+                <div class="brand-title"><a href="/" style="color:inherit;text-decoration:none;">Fatigue Detection</a>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Deteksi</a>
+                <a href="/history.html" class="nav-link active">Riwayat</a>
+                <a href="/#about" class="nav-link">Tentang</a>
+            </div>
+            <div class="nav-auth">
+                <div class="user-menu" id="userMenu">
+                    <span class="user-name" id="userName"></span>
+                    <button class="btn btn-logout" onclick="handleLogout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- History Section -->
+    <section class="history-section history-page-section">
+        <div class="container">
+            <div class="section-header-compact">
+                <h2 class="section-title">Riwayat Deteksi</h2>
+                <div class="history-count" id="historyCount">0 hasil deteksi</div>
+            </div>
+            <div class="history-list" id="historyList">
+                <div class="history-empty" id="historyEmpty">
+                    <svg width="48" height="48" viewBox="0 0 64 64" fill="none">
+                        <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="2" opacity="0.1" />
+                        <path d="M22 32H42M32 22V42" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            opacity="0.2" />
+                    </svg>
+                    <h3>Belum ada riwayat</h3>
+                    <p>Lakukan deteksi untuk melihat riwayat di sini</p>
+                </div>
+            </div>
+            <div class="history-pagination" id="historyPagination" style="display:none;">
+                <button class="btn btn-secondary btn-sm" id="prevPageBtn" onclick="loadHistory(currentHistoryPage - 1)"
+                    disabled>← Sebelumnya</button>
+                <span class="page-info" id="pageInfo">Halaman 1</span>
+                <button class="btn btn-secondary btn-sm" id="nextPageBtn" onclick="loadHistory(currentHistoryPage + 1)"
+                    disabled>Selanjutnya →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-row">
+                <span>© 2026 Fatigue Detection System — Skripsi Teknik Informatika, Universitas Bunda Mulia</span>
+                <span>Indra Yohanes • 32220135</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="history.js"></script>
+</body>
+
+</html>

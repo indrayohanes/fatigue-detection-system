@@ -9,7 +9,6 @@ const API_BASE_URL = '/api';
 let detectionCount = 0;
 let authToken = localStorage.getItem('authToken') || null;
 let currentUser = null;
-let currentHistoryPage = 1;
 let cameraStream = null;
 let useFrontCamera = true;
 
@@ -65,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     animateStats();
     initScrollAnimations();
-    startCamera();
+    // Camera will be started after login check in checkAuth/updateAuthUI
 });
 
 function initializeEventListeners() {
@@ -286,8 +285,6 @@ async function captureAndAnalyze() {
                 displayResults(data);
                 detectionCount++;
                 updateDetectionCount();
-                // Refresh history
-                if (authToken) loadHistory();
             } else {
                 // Show error IN the modal instead of closing it
                 showResultError(data.error || 'Gagal melakukan deteksi');
@@ -603,7 +600,6 @@ async function handleLogin(e) {
             updateAuthUI(true);
             hideAuthModal();
             showSuccess(`Selamat datang, ${data.user.username}!`);
-            loadHistory();
         } else {
             errorEl.textContent = data.error || 'Login gagal';
             errorEl.style.display = 'block';
@@ -650,7 +646,6 @@ async function handleRegister(e) {
             updateAuthUI(true);
             hideAuthModal();
             showSuccess(`Akun berhasil dibuat! Selamat datang, ${data.user.username}!`);
-            loadHistory();
         } else {
             errorEl.textContent = data.error || 'Registrasi gagal';
             errorEl.style.display = 'block';
@@ -694,7 +689,6 @@ async function checkAuth() {
         if (data.success) {
             currentUser = data.user;
             updateAuthUI(true);
-            loadHistory();
         } else {
             authToken = null;
             localStorage.removeItem('authToken');
@@ -710,118 +704,29 @@ function updateAuthUI(isLoggedIn) {
     const userMenu = document.getElementById('userMenu');
     const userName = document.getElementById('userName');
     const navHistory = document.getElementById('navHistory');
-    const historySection = document.getElementById('history');
+    const loginOverlay = document.getElementById('loginRequiredOverlay');
+    const cameraSection = document.getElementById('cameraSection');
 
     if (isLoggedIn && currentUser) {
         authBtn.style.display = 'none';
         userMenu.style.display = 'flex';
         userName.textContent = currentUser.username;
         navHistory.style.display = 'inline-block';
-        historySection.style.display = 'block';
+        // Hide overlay, show camera
+        if (loginOverlay) loginOverlay.style.display = 'none';
+        if (cameraSection) cameraSection.style.display = 'block';
+        // Start camera when logged in
+        startCamera();
     } else {
         authBtn.style.display = 'inline-flex';
         userMenu.style.display = 'none';
         userName.textContent = '';
         navHistory.style.display = 'none';
-        historySection.style.display = 'none';
-    }
-}
-
-// ========================================
-// History Functions
-// ========================================
-
-async function loadHistory(page = 1) {
-    if (!authToken) return;
-    currentHistoryPage = page;
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/history?page=${page}&per_page=10`, {
-            headers: { 'Authorization': 'Bearer ' + authToken }
-        });
-        const data = await response.json();
-
-        if (!data.success) return;
-
-        const listEl = document.getElementById('historyList');
-        const emptyEl = document.getElementById('historyEmpty');
-        const countEl = document.getElementById('historyCount');
-        const paginationEl = document.getElementById('historyPagination');
-
-        countEl.textContent = `${data.total} hasil deteksi`;
-
-        if (data.history.length === 0) {
-            listEl.innerHTML = '';
-            listEl.appendChild(emptyEl);
-            emptyEl.style.display = 'flex';
-            paginationEl.style.display = 'none';
-            return;
-        }
-
-        emptyEl.style.display = 'none';
-        listEl.innerHTML = data.history.map(item => renderHistoryItem(item)).join('');
-
-        // Pagination
-        if (data.total_pages > 1) {
-            paginationEl.style.display = 'flex';
-            document.getElementById('prevPageBtn').disabled = page <= 1;
-            document.getElementById('nextPageBtn').disabled = page >= data.total_pages;
-            document.getElementById('pageInfo').textContent = `Halaman ${page} dari ${data.total_pages}`;
-        } else {
-            paginationEl.style.display = 'none';
-        }
-    } catch (err) {
-        console.error('Failed to load history:', err);
-    }
-}
-
-function renderHistoryItem(item) {
-    const date = new Date(item.timestamp);
-    const dateStr = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-    const timeStr = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-    const isFatigued = item.prediction === 'Fatigued';
-    const statusClass = isFatigued ? 'fatigued' : 'non-fatigued';
-    const statusText = isFatigued ? 'Kelelahan' : 'Tidak Kelelahan';
-    const statusIcon = isFatigued ? '⚠️' : '✅';
-
-    return `
-        <div class="history-item ${statusClass}">
-            <div class="history-item-face">
-                ${item.face_image ? `<img src="data:image/jpeg;base64,${item.face_image}" alt="Face">` : '<div class="no-face">No Image</div>'}
-            </div>
-            <div class="history-item-info">
-                <div class="history-item-status">
-                    <span class="history-status-badge ${statusClass}">
-                        ${statusIcon} ${statusText}
-                    </span>
-                    <span class="history-confidence">${item.confidence}%</span>
-                </div>
-                <div class="history-item-date">${dateStr} • ${timeStr}</div>
-                ${item.explanation ? `<div class="history-item-explanation">${item.explanation.substring(0, 120)}...</div>` : ''}
-            </div>
-            <button class="history-delete-btn" onclick="deleteHistoryItem(${item.id})" title="Hapus">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4L12 12M4 12L12 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </button>
-        </div>
-    `;
-}
-
-async function deleteHistoryItem(id) {
-    if (!confirm('Hapus riwayat deteksi ini?')) return;
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/history/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': 'Bearer ' + authToken }
-        });
-        const data = await response.json();
-
-        if (data.success) {
-            showSuccess('Riwayat berhasil dihapus');
-            loadHistory(currentHistoryPage);
-        }
-    } catch (err) {
-        showError('Gagal menghapus riwayat');
+        // Show overlay, hide camera
+        if (loginOverlay) loginOverlay.style.display = 'flex';
+        if (cameraSection) cameraSection.style.display = 'none';
+        // Stop camera when not logged in
+        stopCamera();
     }
 }
 
@@ -832,5 +737,3 @@ window.switchAuthTab = switchAuthTab;
 window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
 window.handleLogout = handleLogout;
-window.deleteHistoryItem = deleteHistoryItem;
-window.loadHistory = loadHistory;

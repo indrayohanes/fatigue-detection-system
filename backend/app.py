@@ -199,9 +199,10 @@ def detect_face_multi_method(image):
     2. Pass 2: Haar Cascade Frontal (parameter SENSITIF)
     3. Pass 3: Haar Cascade Profile Face
     4. Pass 4: Haar Cascade Frontal (parameter SANGAT SENSITIF + validasi ketat)
-    5. Fallback: Center-top crop
+    5. Pass 5: DNN Face Detection (if available)
     
     Semua pass menggunakan validasi ukuran dan aspek rasio.
+    Jika tidak ada wajah terdeteksi, return None.
     
     Returns: (cropped_face_image, bbox) or None
     """
@@ -369,21 +370,10 @@ def detect_face_multi_method(image):
         print(f"⚠️ DNN detection failed: {e}")
     
     # ==========================================
-    # FALLBACK: Center-top crop (wajah biasanya di atas-tengah)
+    # NO FACE DETECTED — Return None
     # ==========================================
-    print("⚠️ No face detected with any method, using center-top crop fallback")
-    
-    # Crop center-top region (upper 60% of image, centered horizontally)
-    crop_h = int(img_h * 0.6)
-    crop_w = min(img_w, crop_h)  # Keep roughly square
-    
-    x1 = max(0, (img_w - crop_w) // 2)
-    y1 = 0  # Start from top
-    x2 = min(img_w, x1 + crop_w)
-    y2 = min(img_h, y1 + crop_h)
-    
-    face_img = image[y1:y2, x1:x2]
-    return face_img, (x1, y1, x2-x1, y2-y1)
+    print("❌ No face detected with any method — returning None")
+    return None
 
 def extract_face_with_margin(image, x, y, w, h, margin=25):
     """
@@ -723,6 +713,10 @@ def get_recommendation(prediction, confidence):
 @app.route('/')
 def serve_frontend():
     return send_from_directory('../frontend', 'index.html')
+
+@app.route('/history.html')
+def serve_history():
+    return send_from_directory('../frontend', 'history.html')
 
 @app.route('/<path:path>')
 def static_files(path):
