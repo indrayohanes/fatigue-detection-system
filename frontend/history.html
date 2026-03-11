@@ -84,6 +84,138 @@
         </div>
     </footer>
 
+    <!-- Detail Analysis Modal -->
+    <div class="result-modal-overlay" id="historyDetailModal" style="display:none;">
+        <div class="result-modal">
+            <button class="modal-close" id="detailModalClose" onclick="closeDetailModal()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M5 5L15 15M5 15L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+            </button>
+            <div class="result-modal-body">
+                <div class="result-modal-content" id="detailModalContent" style="display:flex;">
+                    <!-- Status Banner -->
+                    <div class="result-status-banner" id="detailStatusBanner">
+                        <div class="status-banner-icon" id="detailStatusIcon"></div>
+                        <div class="status-banner-text" id="detailStatusValue">-</div>
+                    </div>
+
+                    <!-- Confidence Bar -->
+                    <div class="confidence-section">
+                        <div class="confidence-header">
+                            <span class="confidence-label">Confidence Level</span>
+                            <span class="confidence-value" id="detailConfidenceValue">0%</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="detailConfidenceFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Fatigue Level Badge -->
+                    <div class="fatigue-level-section">
+                        <div class="fatigue-level-badge" id="detailFatigueBadge">
+                            <span class="fatigue-level-icon" id="detailFatigueIcon"></span>
+                            <span class="fatigue-level-text" id="detailFatigueText">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Face Image -->
+                    <div class="face-detected-section">
+                        <div class="face-detected-label">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                <circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M2 14C2 11.2386 4.68629 9 8 9C11.3137 9 14 11.2386 14 14" stroke="currentColor"
+                                    stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                            <span>Wajah Terdeteksi</span>
+                        </div>
+                        <div class="face-detected-image">
+                            <img id="detailFaceImage" alt="Detected Face">
+                        </div>
+                    </div>
+
+                    <!-- GradCAM Heatmap -->
+                    <div class="face-detected-section" id="detailGradcamSection" style="display:none;">
+                        <div class="face-detected-label">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            <span>Grad-CAM Heatmap</span>
+                        </div>
+                        <div class="face-detected-image">
+                            <img id="detailGradcamImage" alt="GradCAM Heatmap">
+                        </div>
+                    </div>
+
+                    <!-- Face Region Analysis -->
+                    <div class="expression-analysis-card" id="detailRegionCard" style="display:none;">
+                        <div class="expression-analysis-header">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5" />
+                                <circle cx="7" cy="8" r="1.5" fill="currentColor" />
+                                <circle cx="13" cy="8" r="1.5" fill="currentColor" />
+                                <path d="M6 13C7 14.5 9 15 10 15C11 15 13 14.5 14 13" stroke="currentColor"
+                                    stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                            <span>Analisis Ekspresi Wajah</span>
+                        </div>
+                        <div class="expression-list" id="detailRegionList"></div>
+                    </div>
+
+                    <!-- AI Explanation -->
+                    <div class="result-recommendation" id="detailExplanationSection" style="display:none;">
+                        <div class="recommendation-header">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                <path d="M10 2L12.09 6.26L17 7.27L13.5 10.97L14.18 16L10 13.77L5.82 16L6.5 10.97L3 7.27L7.91 6.26L10 2Z"
+                                    stroke="currentColor" stroke-width="1.5" fill="none" />
+                            </svg>
+                            <span>Penjelasan AI</span>
+                        </div>
+                        <p class="recommendation-message" id="detailExplanation"></p>
+                    </div>
+
+                    <!-- Meta -->
+                    <div class="result-meta">
+                        <div class="meta-item">
+                            <div class="meta-label">Waktu</div>
+                            <div class="meta-value" id="detailTime">-</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="meta-label">Model</div>
+                            <div class="meta-value">CNN (Trained)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="confirm-modal-overlay" id="deleteConfirmModal" style="display:none;">
+        <div class="confirm-modal">
+            <div class="confirm-modal-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.8"/>
+                    <path d="M12 8v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="16" r="1" fill="currentColor"/>
+                </svg>
+            </div>
+            <h3 class="confirm-modal-title">Hapus Riwayat?</h3>
+            <p class="confirm-modal-message">Data riwayat deteksi ini akan dihapus secara permanen dan tidak dapat dikembalikan.</p>
+            <div class="confirm-modal-actions">
+                <button class="btn btn-secondary" id="confirmCancelBtn" onclick="cancelDelete()">Batal</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" 
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notifications -->
     <div class="toast-container" id="toastContainer"></div>
 

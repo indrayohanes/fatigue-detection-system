@@ -6,12 +6,32 @@ const API_BASE_URL = '/api';
 let authToken = localStorage.getItem('authToken');
 let currentUser = null;
 let currentHistoryPage = 1;
+let pendingDeleteId = null;
+let historyDataCache = {};
 
 // ========================================
 // Initialization
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
+
+    // Close detail modal on overlay click
+    document.getElementById('historyDetailModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeDetailModal();
+    });
+
+    // Close delete confirm modal on overlay click
+    document.getElementById('deleteConfirmModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) cancelDelete();
+    });
+
+    // ESC key handler
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeDetailModal();
+            cancelDelete();
+        }
+    });
 });
 
 // ========================================
@@ -66,7 +86,6 @@ function getAuthHeaders() {
 
 async function checkAuth() {
     if (!authToken) {
-        // Not logged in, redirect to main page
         window.location.href = '/';
         return;
     }
@@ -82,7 +101,6 @@ async function checkAuth() {
             updateAuthUI(true);
             loadHistory();
         } else {
-            // Token invalid, redirect
             authToken = null;
             localStorage.removeItem('authToken');
             window.location.href = '/';
@@ -138,6 +156,12 @@ async function loadHistory(page = 1) {
 
         countEl.textContent = `${data.total} hasil deteksi`;
 
+        // Cache history data for detail view
+        historyDataCache = {};
+        data.history.forEach(item => {
+            historyDataCache[item.id] = item;
+        });
+
         if (data.history.length === 0) {
             listEl.innerHTML = `
                 <div class="history-empty">
@@ -179,7 +203,7 @@ function renderHistoryItem(item) {
     const statusIcon = isFatigued ? '⚠️' : '✅';
 
     return `
-        <div class="history-item ${statusClass}" id="history-item-${item.id}">
+        <div class="history-item ${statusClass}" id="history-item-${item.id}" onclick="showHistoryDetail(${item.id})">
             <div class="history-item-face">
                 ${item.face_image ? `<img src="data:image/jpeg;base64,${item.face_image}" alt="Face">` : '<div class="no-face">No Image</div>'}
             </div>
@@ -193,17 +217,172 @@ function renderHistoryItem(item) {
                 <div class="history-item-date">${dateStr} • ${timeStr}</div>
                 ${item.explanation ? `<div class="history-item-explanation">${item.explanation.substring(0, 120)}...</div>` : ''}
             </div>
-            <button class="history-delete-btn" onclick="deleteHistoryItem(${item.id})" title="Hapus">
+            <button class="history-delete-btn" onclick="event.stopPropagation(); showDeleteConfirm(${item.id})" title="Hapus">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4L12 12M4 12L12 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             </button>
         </div>
     `;
 }
 
-async function deleteHistoryItem(id) {
-    if (!confirm('Hapus riwayat deteksi ini?')) return;
+// ========================================
+// Detail Analysis Modal
+// ========================================
 
-    // Instantly remove item from DOM with animation
+function showHistoryDetail(id) {
+    const item = historyDataCache[id];
+    if (!item) return;
+
+    const modal = document.getElementById('historyDetailModal');
+    const isFatigued = item.prediction === 'Fatigued';
+
+    // Status Banner
+    const banner = document.getElementById('detailStatusBanner');
+    banner.className = `result-status-banner ${isFatigued ? 'fatigued' : 'non-fatigued'}`;
+    document.getElementById('detailStatusIcon').textContent = isFatigued ? '⚠️' : '✅';
+    document.getElementById('detailStatusValue').textContent = isFatigued ? 'Terdeteksi Kelelahan' : 'Tidak Kelelahan';
+
+    // Confidence
+    const confidence = item.confidence;
+    document.getElementById('detailConfidenceValue').textContent = confidence + '%';
+    const fill = document.getElementById('detailConfidenceFill');
+    fill.style.width = '0%';
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            fill.style.width = confidence + '%';
+        });
+    });
+
+    // Fatigue Level Badge
+    const fatigueBadge = document.getElementById('detailFatigueBadge');
+    const fatigueIcon = document.getElementById('detailFatigueIcon');
+    const fatigueText = document.getElementById('detailFatigueText');
+
+    if (isFatigued) {
+        if (confidence >= 80) {
+            fatigueBadge.className = 'fatigue-level-badge level-berat';
+            fatigueIcon.textContent = '🔴';
+            fatigueText.textContent = 'Kelelahan Berat';
+        } else if (confidence >= 65) {
+            fatigueBadge.className = 'fatigue-level-badge level-sedang';
+            fatigueIcon.textContent = '🟠';
+            fatigueText.textContent = 'Kelelahan Sedang';
+        } else {
+            fatigueBadge.className = 'fatigue-level-badge level-ringan';
+            fatigueIcon.textContent = '🟡';
+            fatigueText.textContent = 'Kelelahan Ringan';
+        }
+    } else {
+        fatigueBadge.className = 'fatigue-level-badge level-normal';
+        fatigueIcon.textContent = '✅';
+        fatigueText.textContent = 'Tidak Lelah';
+    }
+
+    // Face Image
+    if (item.face_image) {
+        document.getElementById('detailFaceImage').src = 'data:image/jpeg;base64,' + item.face_image;
+    }
+
+    // GradCAM Heatmap
+    const gradcamSection = document.getElementById('detailGradcamSection');
+    if (item.gradcam_image) {
+        gradcamSection.style.display = 'block';
+        document.getElementById('detailGradcamImage').src = 'data:image/jpeg;base64,' + item.gradcam_image;
+    } else {
+        gradcamSection.style.display = 'none';
+    }
+
+    // Face Region Analysis (actually stores expressions data)
+    const regionCard = document.getElementById('detailRegionCard');
+    const regionList = document.getElementById('detailRegionList');
+    if (item.face_regions && item.face_regions.length > 0) {
+        regionCard.style.display = 'block';
+
+        const iconMap = {
+            eye: '👁️',
+            mouth: '👄',
+            face: '🙂',
+            result: '📊'
+        };
+        const statusIcons = {
+            good: '✅',
+            warning: '⚠️',
+            danger: '🔴',
+            neutral: '⬜'
+        };
+
+        regionList.innerHTML = item.face_regions.map(expr => `
+            <div class="expression-item status-${expr.status}">
+                <span class="expression-icon">${iconMap[expr.icon] || '🔍'}</span>
+                <span class="expression-label">${expr.label}</span>
+                <span class="expression-value">${expr.value}</span>
+                <span class="expression-status">${statusIcons[expr.status] || ''}</span>
+            </div>
+        `).join('');
+    } else {
+        regionCard.style.display = 'none';
+    }
+
+    // AI Explanation
+    const explanationSection = document.getElementById('detailExplanationSection');
+    if (item.explanation) {
+        explanationSection.style.display = 'block';
+        document.getElementById('detailExplanation').textContent = item.explanation;
+    } else {
+        explanationSection.style.display = 'none';
+    }
+
+    // Timestamp
+    const timestamp = new Date(item.timestamp);
+    document.getElementById('detailTime').textContent = timestamp.toLocaleString('id-ID');
+
+    // Show modal with animation
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => {
+        modal.classList.add('show');
+    });
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDetailModal() {
+    const modal = document.getElementById('historyDetailModal');
+    modal.classList.remove('show');
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }, 300);
+}
+
+// ========================================
+// Delete Confirmation Dialog
+// ========================================
+
+function showDeleteConfirm(id) {
+    pendingDeleteId = id;
+    const modal = document.getElementById('deleteConfirmModal');
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => {
+        modal.classList.add('show');
+    });
+}
+
+function cancelDelete() {
+    pendingDeleteId = null;
+    const modal = document.getElementById('deleteConfirmModal');
+    modal.classList.remove('show');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+
+async function confirmDelete() {
+    if (!pendingDeleteId) return;
+
+    const id = pendingDeleteId;
+
+    // Close confirm modal
+    cancelDelete();
+
+    // Animate item removal
     const itemEl = document.getElementById(`history-item-${id}`);
     if (itemEl) {
         itemEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
@@ -220,12 +399,14 @@ async function deleteHistoryItem(id) {
 
         if (data.success) {
             showSuccess('Riwayat berhasil dihapus');
-            // Wait for animation then reload list
+            // Remove from cache
+            delete historyDataCache[id];
+            // Wait for animation then reload
             setTimeout(() => {
                 loadHistory(currentHistoryPage);
             }, 300);
         } else {
-            // Revert animation if failed
+            // Revert animation
             if (itemEl) {
                 itemEl.style.opacity = '1';
                 itemEl.style.transform = 'translateX(0)';
@@ -233,7 +414,6 @@ async function deleteHistoryItem(id) {
             showError('Gagal menghapus riwayat');
         }
     } catch (err) {
-        // Revert animation if failed
         if (itemEl) {
             itemEl.style.opacity = '1';
             itemEl.style.transform = 'translateX(0)';
@@ -244,5 +424,10 @@ async function deleteHistoryItem(id) {
 
 // Make functions global
 window.handleLogout = handleLogout;
-window.deleteHistoryItem = deleteHistoryItem;
+window.deleteHistoryItem = showDeleteConfirm;
+window.showDeleteConfirm = showDeleteConfirm;
+window.cancelDelete = cancelDelete;
+window.confirmDelete = confirmDelete;
+window.showHistoryDetail = showHistoryDetail;
+window.closeDetailModal = closeDetailModal;
 window.loadHistory = loadHistory;
